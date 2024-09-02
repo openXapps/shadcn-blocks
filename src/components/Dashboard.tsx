@@ -11,7 +11,8 @@ import {
   SheetTitle,
   SheetContent,
   SheetTrigger,
-  SheetDescription
+  SheetDescription,
+  SheetClose
 } from "@/components/ui/sheet"
 
 import {
@@ -21,10 +22,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useEffect, useRef, useState } from "react"
 
-const years: string[] = ['2023', '2022', '2021', '2020', '2019', '2018', '2017', '2016'];
+
 
 export function Dashboard() {
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [search, setSearch] = useState<string | undefined>('');
+  const [year, setYear] = useState<string | undefined>('');
+  const [yearList, setYearList] = useState<string[]>([]);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  useEffect(() => {
+    function genYears(): string[] {
+      const today = new Date();
+      const year = today.getFullYear();
+      const yearList = [];
+      for (let n = 0; n < 110; n++) {
+        yearList.push(String(year - n));
+      }
+      return yearList;
+    };
+
+    setYearList(genYears());
+
+    return () => { };
+  }, [])
+
+  const handleSearchAction = () => {
+    setSearch(searchRef.current?.value);
+    setSheetOpen(false);
+  }
+
+  const handleYearSelection = () => {
+    setSheetOpen(false);
+  }
+
   return (
     <div className="">
 
@@ -37,7 +70,7 @@ export function Dashboard() {
             <Button variant="link">Upcoming</Button>
             <Button variant="link">Popular</Button>
           </div>
-          <Sheet>
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild>
               <Button size="icon" variant="outline" className="">
                 <PanelLeft className="" />
@@ -47,42 +80,47 @@ export function Dashboard() {
             <SheetContent side="left" className="">
               <SheetHeader>
                 <SheetTitle>Filter Options</SheetTitle>
-                <SheetDescription className="sr-only">Some description</SheetDescription>
+                <SheetDescription className="sr-only">App Side Menu</SheetDescription>
               </SheetHeader>
               <div className="flex gap-2 justify-between mt-5">
-                <div className="relative">
+                <div className="relative flex-1">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    type="search"
-                    placeholder="Movie title..."
                     className="pl-8"
+                    type="search"
+                    placeholder="Search by movie title..."
+                    ref={searchRef}
                   />
                 </div>
-                <Button variant="outline" className="">GO</Button>
+                <Button variant="outline" className="" onClick={handleSearchAction}>Apply</Button>
+              </div>
+              <div className="flex gap-2 justify-between mt-3">
+                <div className="flex-1">
+                  <Select value={year} onValueChange={setYear}>
+                    <SelectTrigger className="">
+                      <SelectValue placeholder="Search by year..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {yearList.map((v, i) => (
+                        <SelectItem key={i} value={v}>{v}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button variant="outline" className="" onClick={handleYearSelection}>Apply</Button>
               </div>
               <div className="flex flex-col gap-2 mt-5 md:hidden">
                 <Button variant="outline">Now Playing</Button>
                 <Button variant="outline">Upcoming</Button>
                 <Button variant="outline">Popular</Button>
               </div>
-              <div className="mt-5">
-                <Select>
-                  <SelectTrigger className="">
-                    <SelectValue placeholder="Year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years.map((v, i) => (
-                      <SelectItem key={i} value={v[i]}>{v[i]}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </SheetContent>
           </Sheet>
 
         </header>
         <main className="m-10">
-          <div>Some Page Context</div>
+          <div>{`Search string is: ${search}`}</div>
+          <div>{`Year selected is: ${year}`}</div>
         </main>
       </div>
     </div>
