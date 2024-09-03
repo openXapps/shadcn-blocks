@@ -1,3 +1,9 @@
+import { useEffect, useRef, useState } from "react"
+
+// https://github.com/crashmax-dev/fireworks-js/
+// import { Fireworks } from '@fireworks-js/react';
+// import type { FireworksHandlers } from '@fireworks-js/react';
+
 import {
   PanelLeft,
   Search,
@@ -12,7 +18,6 @@ import {
   SheetContent,
   SheetTrigger,
   SheetDescription,
-  SheetClose
 } from "@/components/ui/sheet"
 
 import {
@@ -22,9 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useEffect, useRef, useState } from "react"
-
-
 
 export function Dashboard() {
   const searchRef = useRef<HTMLInputElement>(null);
@@ -32,6 +34,16 @@ export function Dashboard() {
   const [year, setYear] = useState<string | undefined>('');
   const [yearList, setYearList] = useState<string[]>([]);
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  // const fwRef = useRef<FireworksHandlers>(null);
+  // const fwToggle = () => {
+  //   if (!fwRef.current) return
+  //   if (fwRef.current.isRunning) {
+  //     fwRef.current.stop()
+  //   } else {
+  //     fwRef.current.start()
+  //   }
+  // }
 
   useEffect(() => {
     function genYears(): string[] {
@@ -49,20 +61,22 @@ export function Dashboard() {
     return () => { };
   }, [])
 
-  const handleSearchAction = () => {
-    setSearch(searchRef.current?.value);
-    setSheetOpen(false);
+  const handleSearchAction = (e: React.FormEvent<HTMLFormElement | HTMLButtonElement>) => {
+    e.preventDefault();
+    if (searchRef.current?.value && searchRef.current?.value.length > 3) {
+      setSearch(searchRef.current?.value);
+      setSheetOpen(false);
+    }
   }
 
   const handleYearSelection = () => {
-    setSheetOpen(false);
+    if (year && year?.length > 0) setSheetOpen(false);
   }
 
   return (
     <div className="">
 
       <div className="">
-        {/* <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6"> */}
         <header className="sticky top-0 flex items-center gap-3 p-4 bg-slate-100">
           <h1 className="text-lg font-bold flex-1">App Title</h1>
           <div className="hidden md:flex gap-1">
@@ -83,15 +97,17 @@ export function Dashboard() {
                 <SheetDescription className="sr-only">App Side Menu</SheetDescription>
               </SheetHeader>
               <div className="flex gap-2 justify-between mt-5">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    className="pl-8"
-                    type="search"
-                    placeholder="Search by movie title..."
-                    ref={searchRef}
-                  />
-                </div>
+                <form onSubmit={handleSearchAction}>
+                  <div className="relative flex-1">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      className="pl-8"
+                      type="search"
+                      placeholder="Search by movie title..."
+                      ref={searchRef}
+                    />
+                  </div>
+                </form>
                 <Button variant="outline" className="" onClick={handleSearchAction}>Apply</Button>
               </div>
               <div className="flex gap-2 justify-between mt-3">
@@ -121,6 +137,72 @@ export function Dashboard() {
         <main className="m-10">
           <div>{`Search string is: ${search}`}</div>
           <div>{`Year selected is: ${year}`}</div>
+          {/* <>
+            <div className="flex gap-4 absolute z-10">
+              <Button onClick={() => fwToggle()}>Toggle</Button>
+              <Button onClick={() => fwRef.current!.clear()}>Clear</Button>
+            </div>
+            <Fireworks
+              ref={fwRef}
+              options={{
+                autoresize: true,
+                opacity: 0.5,
+                acceleration: 1.05,
+                friction: 0.97,
+                gravity: 1.5,
+                particles: 50,
+                traceLength: 3,
+                traceSpeed: 10,
+                explosion: 5,
+                intensity: 3,
+                flickering: 50,
+                lineStyle: 'round',
+                hue: {
+                  min: 0,
+                  max: 360
+                },
+                delay: {
+                  min: 30,
+                  max: 60
+                },
+                rocketsPoint: {
+                  min: 50,
+                  max: 50
+                },
+                lineWidth: {
+                  explosion: {
+                    min: 1,
+                    max: 3
+                  },
+                  trace: {
+                    min: 1,
+                    max: 2
+                  }
+                },
+                brightness: {
+                  min: 50,
+                  max: 80
+                },
+                decay: {
+                  min: 0.015,
+                  max: 0.03
+                },
+                mouse: {
+                  click: true,
+                  move: false,
+                  max: 1
+                }
+              }}
+              style={{
+                top: "30%",
+                left: 0,
+                width: '100%',
+                height: '100%',
+                position: 'fixed',
+                background: '#000'
+              }}
+            />
+          </> */}
         </main>
       </div>
     </div>
